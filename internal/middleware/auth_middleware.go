@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// auth 权限验证
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -16,19 +17,16 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// LoggerMiddleware 日志记录中间件
+// 日志记录中间件
 func LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 记录请求信息
-		log.Println("Request:", c.Request.Method, c.Request.URL.Path)
+		log.Println("logger-middleware")
 		// 继续处理请求
 		c.Next()
-		// 记录响应信息
-		log.Println("Response:", c.Writer.Status(), c.Writer.Size())
+		log.Println("logger-middleware-after")
 	}
 }
 
-// isAuthenticated 检查用户是否已认证
 func isAuthenticated(c *gin.Context) bool {
 	// 实现具体的认证逻辑
 	name := c.DefaultQuery("name", "")

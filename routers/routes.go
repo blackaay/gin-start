@@ -10,7 +10,7 @@ import (
 func InitRoutes(r *gin.Engine) {
 	// 应用局部中间件
 	auth := r.Group("/auth")
-	auth.Use(middleware.AuthMiddleware())
+	auth.Use(middleware.AuthMiddleware(), middleware.LoggerMiddleware())
 	{
 		auth.GET("/login", controllers.LoginUser)    // 登录用户
 		auth.POST("/logout", controllers.LogoutUser) // 注销用户
