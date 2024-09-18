@@ -17,5 +17,6 @@ func Migrate() {
 	if err != nil {
 		panic("failed to connect database")
 	}
+	MigrateUserTable(db)
 
 }
