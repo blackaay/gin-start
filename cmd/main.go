@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/blackaay/gin-start/config"
+	"github.com/blackaay/gin-start/configs"
+	"github.com/blackaay/gin-start/database/migrations"
 	"github.com/blackaay/gin-start/internal/middleware"
 	"github.com/blackaay/gin-start/routers"
 	"github.com/gin-gonic/gin"
@@ -32,11 +33,13 @@ func main() {
 	// 启动日志文件轮换的定时任务
 	go checkAndRotateLogFile()
 
+	//执行 migrate
+	go migrations.Migrate()
+
 	router := gin.Default()
 	router.Use(middleware.LoggerMiddleware())
 	routers.InitRoutes(router)
-	port := config.GetSettingString("http_port")
-
+	port := configs.GetSettingString("HTTP_PORT")
 	// 启动 HTTP 服务器
 	log.Printf("Starting server on :%s", port)
 	if err := http.ListenAndServe(":"+port, router); err != nil {
