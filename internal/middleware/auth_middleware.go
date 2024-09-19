@@ -29,11 +29,5 @@ func LoggerMiddleware() gin.HandlerFunc {
 
 func isAuthenticated(c *gin.Context) bool {
 	// 实现具体的认证逻辑
-	name := c.DefaultQuery("name", "")
-	log.Println("Request:", name)
-	if name != "" {
-		return true
-	} else {
-		return false
-	}
+	return true
 }

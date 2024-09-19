@@ -6,13 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// InitRoutes 初始化路由
 func InitRoutes(r *gin.Engine) {
-	// 应用局部中间件
 	auth := r.Group("/api/auth")
 	auth.Use(middleware.AuthMiddleware(), middleware.LoggerMiddleware())
 	{
-		auth.GET("/login", UserController.LoginUser)    // 登录用户
-		auth.POST("/logout", UserController.LogoutUser) // 注销用户
+		auth.POST("/user", UserController.Create)
+		auth.GET("/user", UserController.Get)
+		auth.POST("/logout", UserController.Logout)
+	}
+	auth.Use(middleware.LoggerMiddleware())
+	{
+		auth.POST("/login", UserController.Login)
 	}
 }
