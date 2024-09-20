@@ -1,25 +1,18 @@
 package user_controllers
 
 import (
+	"github.com/blackaay/gin-start/internal/module/common"
 	"github.com/blackaay/gin-start/internal/module/user/validator"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func Create(c *gin.Context) {
-	var req validator.User
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse request body"})
+	var data validator.User
+	if err := validator.ValidateUserCreate(c, &data); err == false {
 		return
 	}
-
-	if err := validator.ValidateUserCreate(c, &req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
+	common.ResponseSuccess(c, "User created successfully")
 }
 
 func Get(c *gin.Context) {

@@ -1,37 +1,24 @@
 package validator
 
 import (
+	"github.com/blackaay/gin-start/internal/module/common"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/locales/zh"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
 )
 
 type User struct {
-	Name     string `validate:"required"`
-	Password string `validate:"required"`
+	Name     string `validate:"required" label:"姓名"`
+	Password string `validate:"required" label:"密码"`
 }
 
-// 初始化验证器并设置中文翻译
-func initValidator() (*validator.Validate, ut.Translator) {
-	// 初始化翻译器
-	zhT := zh.New()
-	uni := ut.New(zhT, zhT)
-	trans, _ := uni.GetTranslator("zh")
-
-	// 初始化验证器
-	validate := validator.New()
-	validate.RegisterTranslation("required", trans, func(ut ut.Translator) error {
-		return ut.Add("required", "{0} 不能为空", true) // {0} 是字段名
-	}, func(ut ut.Translator, fe validator.FieldError) string {
-		t, _ := ut.T("required", fe.Field()) // fe.Field() 获取字段名
-		return t
-	})
-
-	return validate, trans
-}
-
-func ValidateUserCreate(c *gin.Context, req *User) error {
-	validate := validator.New()
-	return validate.Struct(req)
+func ValidateUserCreate(c *gin.Context, data interface{}) bool {
+	if err := c.ShouldBindJSON(&data); err != nil {
+		common.ResponseBad(c, "Failed to parse request body")
+		return false
+	}
+	msg, code := common.Validate(data)
+	if code != 200 {
+		common.ResponseBad(c, msg)
+		return false
+	}
+	return true
 }
