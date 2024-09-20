@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	mu      sync.Mutex
-	logFile *os.File
+	mu             sync.Mutex
+	logFile        *os.File
+	lastRotateDate time.Time
 )
 
 func main() {
@@ -50,7 +51,7 @@ func main() {
 func createDailyLogFile(nextDay bool) (*os.File, error) {
 	var logDate string
 	if nextDay {
-		logDate = time.Now().Add(time.Second * 60).Format("2006-01-02")
+		logDate = time.Now().AddDate(0, 0, 1).Format("2006-01-02")
 	} else {
 		logDate = time.Now().Format("2006-01-02")
 	}
@@ -63,18 +64,21 @@ func checkAndRotateLogFile() {
 		ticker := time.NewTicker(1 * time.Minute)
 		select {
 		case <-ticker.C:
-			log.Println("ticker")
+			currentDate := time.Now().Format("2006-01-02")
 			mu.Lock()
 			defer mu.Unlock()
 			if logFile != nil {
 				logFile.Close()
 			}
-			var err error
-			logFile, err = createDailyLogFile(true)
-			log.SetOutput(io.MultiWriter(logFile, os.Stdout))
-			gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
-			if err != nil {
-				log.Fatalf("Error creating daily log file: %v", err)
+			if currentDate != lastRotateDate.Format("2006-01-02") {
+				var err error
+				logFile, err = createDailyLogFile(true)
+				log.SetOutput(io.MultiWriter(logFile, os.Stdout))
+				gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
+				if err != nil {
+					log.Fatalf("Error creating daily log file: %v", err)
+				}
+				lastRotateDate = time.Now()
 			}
 			mu.Unlock()
 		}
