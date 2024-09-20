@@ -17,6 +17,7 @@ func Migrate() {
 	if err != nil {
 		panic("failed to connect database")
 	}
+	//添加需要迁移的脚本
 	MigrateUserTable(db)
 
 }

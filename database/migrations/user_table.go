@@ -11,5 +11,5 @@ type User struct {
 }
 
 func MigrateUserTable(db *gorm.DB) {
-	db.Migrator().CreateTable(&User{})
+	db.AutoMigrate(&User{})
 }

@@ -50,7 +50,7 @@ func main() {
 func createDailyLogFile(nextDay bool) (*os.File, error) {
 	var logDate string
 	if nextDay {
-		logDate = time.Now().AddDate(0, 0, 1).Format("2006-01-02")
+		logDate = time.Now().Add(time.Second * 60).Format("2006-01-02")
 	} else {
 		logDate = time.Now().Format("2006-01-02")
 	}
@@ -60,9 +60,10 @@ func createDailyLogFile(nextDay bool) (*os.File, error) {
 
 func checkAndRotateLogFile() {
 	for {
-		ticker := time.NewTicker(6 * time.Hour)
+		ticker := time.NewTicker(1 * time.Minute)
 		select {
 		case <-ticker.C:
+			log.Println("ticker")
 			mu.Lock()
 			defer mu.Unlock()
 			if logFile != nil {
@@ -70,9 +71,12 @@ func checkAndRotateLogFile() {
 			}
 			var err error
 			logFile, err = createDailyLogFile(true)
+			log.SetOutput(io.MultiWriter(logFile, os.Stdout))
+			gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 			if err != nil {
 				log.Fatalf("Error creating daily log file: %v", err)
 			}
+			mu.Unlock()
 		}
 	}
 }
